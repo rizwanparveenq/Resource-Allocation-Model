@@ -1,0 +1,413 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE entity PUBLIC "-//UC Berkeley//DTD MoML 1//EN"
+    "http://ptolemy.eecs.berkeley.edu/xml/dtd/MoML_1.dtd">
+<entity name="new_Final" class="ptolemy.actor.TypedCompositeActor">
+    <property name="_createdBy" class="ptolemy.kernel.attributes.VersionAttribute" value="11.0.1">
+    </property>
+    <property name="Continuous Director" class="ptolemy.domains.continuous.kernel.ContinuousDirector">
+        <property name="stopTime" class="ptolemy.data.expr.Parameter" value="17">
+        </property>
+        <property name="synchronizeToRealTime" class="ptolemy.data.expr.Parameter" value="true">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[90.0, 60.0]">
+        </property>
+    </property>
+    <property name="_windowProperties" class="ptolemy.actor.gui.WindowPropertiesAttribute" value="{bounds={139, 144, 1147, 615}, maximized=false}">
+    </property>
+    <property name="_vergilSize" class="ptolemy.actor.gui.SizeAttribute" value="[919, 498]">
+    </property>
+    <property name="_vergilZoomFactor" class="ptolemy.data.expr.ExpertParameter" value="0.8494493032793251">
+    </property>
+    <property name="_vergilCenter" class="ptolemy.data.expr.ExpertParameter" value="{562.4037088099466, 301.2541485489776}">
+    </property>
+    <property name="caregiver" class="ptolemy.data.expr.Parameter" value="2">
+        <property name="_hideName" class="ptolemy.kernel.util.SingletonAttribute">
+        </property>
+        <property name="_icon" class="ptolemy.vergil.icon.ValueIcon">
+            <property name="_color" class="ptolemy.actor.gui.ColorAttribute" value="{0.0, 0.0, 1.0, 1.0}">
+            </property>
+        </property>
+        <property name="_smallIconDescription" class="ptolemy.kernel.util.SingletonConfigurableAttribute">
+            <configure>
+      <svg>
+        <text x="20" style="font-size:14; font-family:SansSerif; fill:blue" y="20">-P-</text>
+      </svg>
+    </configure>
+        </property>
+        <property name="_editorFactory" class="ptolemy.vergil.toolbox.VisibleParameterEditorFactory">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[45.0, 90.0]">
+        </property>
+    </property>
+    <property name="threshold" class="ptolemy.data.expr.Parameter" value="5">
+        <property name="_hideName" class="ptolemy.kernel.util.SingletonAttribute">
+        </property>
+        <property name="_icon" class="ptolemy.vergil.icon.ValueIcon">
+            <property name="_color" class="ptolemy.actor.gui.ColorAttribute" value="{0.0, 0.0, 1.0, 1.0}">
+            </property>
+        </property>
+        <property name="_smallIconDescription" class="ptolemy.kernel.util.SingletonConfigurableAttribute">
+            <configure>
+      <svg>
+        <text x="20" style="font-size:14; font-family:SansSerif; fill:blue" y="20">-P-</text>
+      </svg>
+    </configure>
+        </property>
+        <property name="_editorFactory" class="ptolemy.vergil.toolbox.VisibleParameterEditorFactory">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[45.0, 105.0]">
+        </property>
+    </property>
+    <property name="enableBackwardTypeInference" class="ptolemy.data.expr.Parameter" value="false">
+    </property>
+    <property name="x" class="ptolemy.data.expr.Parameter" value="0">
+        <property name="style" class="ptolemy.actor.gui.style.LineStyle">
+        </property>
+    </property>
+    <property name="_hideName" class="ptolemy.data.expr.SingletonParameter" value="false">
+    </property>
+    <entity name="Request Queue" class="ptolemy.domains.de.lib.Queue">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[270.0, 230.0]">
+        </property>
+    </entity>
+    <entity name="TimeDelay" class="ptolemy.actor.lib.TimeDelay">
+        <property name="delay" class="ptolemy.actor.parameters.PortParameter" value="1.0">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[600.0, 60.0]">
+        </property>
+    </entity>
+    <entity name="ReqQueue Status" class="ptolemy.actor.lib.gui.TimedPlotter">
+        <property name="fillOnWrapup" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="automaticRescale" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="legend" class="ptolemy.kernel.util.StringAttribute" value="Request Granted, Queue Size">
+        </property>
+        <property name="_windowProperties" class="ptolemy.actor.gui.WindowPropertiesAttribute" value="{bounds={747, 41, 539, 339}, maximized=false}">
+        </property>
+        <property name="_plotSize" class="ptolemy.actor.gui.SizeAttribute" value="[523, 279]">
+        </property>
+        <property name="useLocalTime" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[375.0, 315.0]">
+        </property>
+        <configure>
+<?plotml <!DOCTYPE plot PUBLIC "-//UC Berkeley//DTD PlotML 1//EN"
+"http://ptolemy.eecs.berkeley.edu/xml/dtd/PlotML_1.dtd">
+<plot>
+<title>Queue Status</title>
+<xLabel></xLabel>
+<yLabel></yLabel>
+<xRange min="0.0" max="15.0"/>
+<yRange min="0.0" max="10.0"/>
+<noGrid/>
+<default connected="no" marks="dots" stems="yes"/>
+</plot>?>
+        </configure>
+    </entity>
+    <entity name="Request Generator" class="ptolemy.actor.lib.DiscreteClock">
+        <property name="stopTime" class="ptolemy.data.expr.Parameter" value="60">
+        </property>
+        <property name="stopTimeIsLocal" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="period" class="ptolemy.actor.parameters.PortParameter" value="Infinity">
+        </property>
+        <property name="offsets" class="ptolemy.data.expr.Parameter" value="{3,4,8,8}">
+        </property>
+        <property name="values" class="ptolemy.data.expr.Parameter" value="{7,3,6,1}">
+        </property>
+        <doc>Create periodic timed events.</doc>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="{100.0, 230.0}">
+        </property>
+    </entity>
+    <entity name="Expression" class="ptolemy.actor.lib.Expression">
+        <property name="expression" class="ptolemy.kernel.util.StringAttribute" value="x &gt; -caregiver">
+        </property>
+        <property name="_icon" class="ptolemy.vergil.icon.BoxedValueIcon">
+            <property name="attributeName" class="ptolemy.kernel.util.StringAttribute" value="expression">
+            </property>
+            <property name="displayWidth" class="ptolemy.data.expr.Parameter" value="60">
+            </property>
+            <property name="displayHeight" class="ptolemy.data.expr.Parameter" value="10">
+            </property>
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[105.0, 370.0]">
+        </property>
+    </entity>
+    <entity name="TrueGate" class="ptolemy.actor.lib.logic.TrueGate">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[195.0, 335.0]">
+        </property>
+    </entity>
+    <entity name="Counter" class="ptolemy.actor.lib.Counter">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[805.0, 135.0]">
+        </property>
+    </entity>
+    <entity name="SetVariable" class="ptolemy.actor.lib.SetVariable">
+        <property name="variableName" class="ptolemy.kernel.util.StringAttribute" value="x">
+        </property>
+        <property name="delayed" class="ptolemy.data.expr.Parameter" value="true">
+        </property>
+        <property name="_icon" class="ptolemy.vergil.icon.BoxedValueIcon">
+            <property name="attributeName" class="ptolemy.kernel.util.StringAttribute" value="variableName">
+            </property>
+            <property name="displayWidth" class="ptolemy.data.expr.Parameter" value="40">
+            </property>
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[895.0, 120.0]">
+        </property>
+    </entity>
+    <entity name="Request Delegator" class="ptolemy.domains.modal.kernel.FSMActor">
+        <property name="_library" class="ptolemy.moml.LibraryAttribute">
+            <configure>
+    <entity name="StateLibrary" class="ptolemy.kernel.CompositeEntity"><input source="ptolemy/configs/basicUtilities.xml"></input><entity name="State" class="ptolemy.domains.modal.kernel.State"><property name="_centerName" class="ptolemy.kernel.util.Attribute"></property></entity></entity>
+  </configure>
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[430.0, 230.0]">
+        </property>
+        <port name="request" class="ptolemy.actor.TypedIOPort">
+            <property name="input"/>
+            <property name="_location" class="ptolemy.kernel.util.Location" value="[120.0, 235.0]">
+            </property>
+            <property name="_showName" class="ptolemy.data.expr.SingletonParameter" value="true">
+            </property>
+        </port>
+        <port name="granted" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_location" class="ptolemy.kernel.util.Location" value="[590.0, 215.0]">
+            </property>
+            <property name="_showName" class="ptolemy.data.expr.SingletonParameter" value="true">
+            </property>
+        </port>
+        <port name="wait" class="ptolemy.actor.TypedIOPort">
+            <property name="output"/>
+            <property name="_location" class="ptolemy.kernel.util.Location" value="[590.0, 275.0]">
+            </property>
+            <property name="_showName" class="ptolemy.data.expr.SingletonParameter" value="true">
+            </property>
+        </port>
+        <entity name="status" class="ptolemy.domains.modal.kernel.State">
+            <property name="isInitialState" class="ptolemy.data.expr.Parameter" value="true">
+            </property>
+            <property name="_location" class="ptolemy.kernel.util.Location" value="[345.0, 250.0]">
+            </property>
+            <property name="_hideName" class="ptolemy.data.expr.SingletonParameter" value="true">
+            </property>
+        </entity>
+        <relation name="relation" class="ptolemy.domains.modal.kernel.Transition">
+            <property name="guardExpression" class="ptolemy.kernel.util.StringAttribute" value="request &lt;= threshold">
+            </property>
+            <property name="outputActions" class="ptolemy.domains.modal.kernel.OutputActionsAttribute" value="granted = request">
+            </property>
+            <property name="exitAngle" class="ptolemy.data.expr.Parameter" value="2.356194490192345">
+            </property>
+            <property name="gamma" class="ptolemy.data.expr.Parameter" value="3.141592653589793">
+            </property>
+        </relation>
+        <relation name="relation2" class="ptolemy.domains.modal.kernel.Transition">
+            <property name="guardExpression" class="ptolemy.kernel.util.StringAttribute" value="request &gt; threshold">
+            </property>
+            <property name="outputActions" class="ptolemy.domains.modal.kernel.OutputActionsAttribute" value="wait = request">
+            </property>
+            <property name="exitAngle" class="ptolemy.data.expr.Parameter" value="2.356194490192345">
+            </property>
+            <property name="gamma" class="ptolemy.data.expr.Parameter" value="0.09500116993931476">
+            </property>
+        </relation>
+        <link port="status.incomingPort" relation="relation"/>
+        <link port="status.incomingPort" relation="relation2"/>
+        <link port="status.outgoingPort" relation="relation"/>
+        <link port="status.outgoingPort" relation="relation2"/>
+    </entity>
+    <entity name="TimeDelay2" class="ptolemy.actor.lib.TimeDelay">
+        <property name="delay" class="ptolemy.actor.parameters.PortParameter" value="1.0">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[595.0, 375.0]">
+        </property>
+    </entity>
+    <entity name="Waiting Queue" class="ptolemy.domains.de.lib.Queue">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[705.0, 390.0]">
+        </property>
+    </entity>
+    <entity name="Expression2" class="ptolemy.actor.lib.Expression">
+        <property name="expression" class="ptolemy.kernel.util.StringAttribute" value="x &gt; -caregiver">
+        </property>
+        <property name="_icon" class="ptolemy.vergil.icon.BoxedValueIcon">
+            <property name="attributeName" class="ptolemy.kernel.util.StringAttribute" value="expression">
+            </property>
+            <property name="displayWidth" class="ptolemy.data.expr.Parameter" value="60">
+            </property>
+            <property name="displayHeight" class="ptolemy.data.expr.Parameter" value="10">
+            </property>
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[520.0, 460.0]">
+        </property>
+    </entity>
+    <entity name="TrueGate2" class="ptolemy.actor.lib.logic.TrueGate">
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[645.0, 460.0]">
+        </property>
+    </entity>
+    <entity name="Patient returns back" class="ptolemy.actor.lib.gui.TimedPlotter">
+        <property name="fillOnWrapup" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="automaticRescale" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="_windowProperties" class="ptolemy.actor.gui.WindowPropertiesAttribute" value="{bounds={183, 380, 519, 352}, maximized=false}">
+        </property>
+        <property name="_plotSize" class="ptolemy.actor.gui.SizeAttribute" value="[503, 292]">
+        </property>
+        <property name="useLocalTime" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[840.0, 235.0]">
+        </property>
+        <configure>
+<?plotml <!DOCTYPE plot PUBLIC "-//UC Berkeley//DTD PlotML 1//EN"
+"http://ptolemy.eecs.berkeley.edu/xml/dtd/PlotML_1.dtd">
+<plot>
+<title>Requests Completed</title>
+<xLabel></xLabel>
+<yLabel></yLabel>
+<xRange min="0.0" max="15.0"/>
+<yRange min="0.0" max="10.0"/>
+<noGrid/>
+<noColor/>
+<default connected="no" marks="dots" stems="yes"/>
+</plot>?>
+        </configure>
+    </entity>
+    <entity name="WaitingQueue_inDC_Display" class="ptolemy.actor.lib.gui.TimedPlotter">
+        <property name="fillOnWrapup" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="automaticRescale" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="legend" class="ptolemy.kernel.util.StringAttribute" value="Caretaker leaves, Caretaker returns back">
+        </property>
+        <property name="_windowProperties" class="ptolemy.actor.gui.WindowPropertiesAttribute" value="{bounds={747, 381, 539, 363}, maximized=false}">
+        </property>
+        <property name="_plotSize" class="ptolemy.actor.gui.SizeAttribute" value="[523, 303]">
+        </property>
+        <property name="useLocalTime" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[620.0, 280.0]">
+        </property>
+        <configure>
+<?plotml <!DOCTYPE plot PUBLIC "-//UC Berkeley//DTD PlotML 1//EN"
+"http://ptolemy.eecs.berkeley.edu/xml/dtd/PlotML_1.dtd">
+<plot>
+<title>Patient put on WAIT</title>
+<xLabel></xLabel>
+<yLabel></yLabel>
+<xRange min="0.0" max="15.0"/>
+<yRange min="0.0" max="10.0"/>
+<noGrid/>
+<default connected="no" marks="dots" stems="yes"/>
+</plot>?>
+        </configure>
+    </entity>
+    <entity name="New Request" class="ptolemy.actor.lib.gui.TimedPlotter">
+        <property name="fillOnWrapup" class="ptolemy.data.expr.Parameter" value="false">
+        </property>
+        <property name="_windowProperties" class="ptolemy.actor.gui.WindowPropertiesAttribute" value="{bounds={186, 34, 515, 347}, maximized=false}">
+        </property>
+        <property name="_plotSize" class="ptolemy.actor.gui.SizeAttribute" value="[499, 287]">
+        </property>
+        <property name="_location" class="ptolemy.kernel.util.Location" value="[265.0, 135.0]">
+        </property>
+        <configure>
+<?plotml <!DOCTYPE plot PUBLIC "-//UC Berkeley//DTD PlotML 1//EN"
+"http://ptolemy.eecs.berkeley.edu/xml/dtd/PlotML_1.dtd">
+<plot>
+<title>New Request</title>
+<xLabel></xLabel>
+<yLabel></yLabel>
+<xRange min="0.0" max="15.0"/>
+<yRange min="0.0" max="10.0"/>
+<noGrid/>
+<default connected="no" marks="dots" stems="yes"/>
+</plot>?>
+        </configure>
+    </entity>
+    <relation name="relation" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation6" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation7" class="ptolemy.actor.TypedIORelation">
+        <property name="width" class="ptolemy.data.expr.Parameter" value="-1">
+        </property>
+        <vertex name="vertex1" value="[715.0, 60.0]">
+        </vertex>
+    </relation>
+    <relation name="relation4" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation9" class="ptolemy.actor.TypedIORelation">
+        <property name="width" class="ptolemy.data.expr.Parameter" value="-1">
+        </property>
+        <vertex name="vertex1" value="[535.0, 145.0]">
+        </vertex>
+    </relation>
+    <relation name="relation10" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation11" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation12" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation15" class="ptolemy.actor.TypedIORelation">
+        <property name="width" class="ptolemy.data.expr.Parameter" value="-1">
+        </property>
+        <vertex name="vertex1" value="[525.0, 275.0]">
+        </vertex>
+    </relation>
+    <relation name="relation13" class="ptolemy.actor.TypedIORelation">
+        <property name="width" class="ptolemy.data.expr.Parameter" value="-1">
+        </property>
+        <vertex name="vertex1" value="[340.0, 230.0]">
+        </vertex>
+    </relation>
+    <relation name="relation2" class="ptolemy.actor.TypedIORelation">
+    </relation>
+    <relation name="relation3" class="ptolemy.actor.TypedIORelation">
+        <property name="width" class="ptolemy.data.expr.Parameter" value="-1">
+        </property>
+        <vertex name="vertex1" value="[195.0, 230.0]">
+        </vertex>
+    </relation>
+    <relation name="relation5" class="ptolemy.actor.TypedIORelation">
+        <property name="width" class="ptolemy.data.expr.Parameter" value="-1">
+        </property>
+        <vertex name="vertex1" value="[790.0, 320.0]">
+        </vertex>
+    </relation>
+    <link port="Request Queue.input" relation="relation3"/>
+    <link port="Request Queue.output" relation="relation13"/>
+    <link port="Request Queue.trigger" relation="relation6"/>
+    <link port="Request Queue.size" relation="relation2"/>
+    <link port="TimeDelay.input" relation="relation9"/>
+    <link port="TimeDelay.output" relation="relation7"/>
+    <link port="TimeDelay.delay" relation="relation9"/>
+    <link port="ReqQueue Status.input" relation="relation13"/>
+    <link port="ReqQueue Status.input" relation="relation2"/>
+    <link port="Request Generator.output" relation="relation3"/>
+    <link port="Expression.output" relation="relation"/>
+    <link port="TrueGate.input" relation="relation"/>
+    <link port="TrueGate.output" relation="relation6"/>
+    <link port="Counter.increment" relation="relation7"/>
+    <link port="Counter.decrement" relation="relation9"/>
+    <link port="Counter.output" relation="relation4"/>
+    <link port="SetVariable.input" relation="relation4"/>
+    <link port="Request Delegator.request" relation="relation13"/>
+    <link port="Request Delegator.granted" relation="relation9"/>
+    <link port="Request Delegator.wait" relation="relation15"/>
+    <link port="TimeDelay2.input" relation="relation15"/>
+    <link port="TimeDelay2.output" relation="relation10"/>
+    <link port="TimeDelay2.delay" relation="relation15"/>
+    <link port="Waiting Queue.input" relation="relation10"/>
+    <link port="Waiting Queue.output" relation="relation5"/>
+    <link port="Waiting Queue.trigger" relation="relation12"/>
+    <link port="Expression2.output" relation="relation11"/>
+    <link port="TrueGate2.input" relation="relation11"/>
+    <link port="TrueGate2.output" relation="relation12"/>
+    <link port="Patient returns back.input" relation="relation7"/>
+    <link port="Patient returns back.input" relation="relation5"/>
+    <link port="WaitingQueue_inDC_Display.input" relation="relation15"/>
+    <link port="WaitingQueue_inDC_Display.input" relation="relation5"/>
+    <link port="New Request.input" relation="relation3"/>
+</entity>
