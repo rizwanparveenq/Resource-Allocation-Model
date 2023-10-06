@@ -4,6 +4,8 @@ Java (Util, IO, Random, XML)
 UPPAAL-Java Wrapper API
 ******************************
 
+This folder contains: UPPAAL xml files for our resource allocation model. The file name: Patient-Caregiver-Resources+Wheelchair.xml is the file that shows our extended model which combines Patient-Caregiver-Medical Instrument+Wheelchair allocation. 
+
 How to run the java file?
 
 
