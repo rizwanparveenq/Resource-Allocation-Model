@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><nta>
+	<declaration>// Place global declarations here.
+
+clock y;
+
+const int P = 50; //patients
+const int C = 5; //caregivers
+//const int W = 2; //wheelchairs
+typedef int[0,P-1] id_p;
+typedef int[0,C-1] id_c;
+//typedef int[0,W-1] id_w;
+
+clock patient_clocks[P];
+int isSafe[P]; //1 when patient is at the hospital
+int assignedPatients[P];
+ /*1 if a patient is taken on the wheelchair till they are dropped to safe.
+ is true throughout one cycle Start to Reached_Safe and back to Safe,
+ this helps to make sure that multiple caregivers are not assigned to a patient*/
+
+int waitingPatientsInDC[P];
+int waitingPatientsToGoToDC[P];
+int lenOfWQueueI; //Length of waiting Queue INSIDE, for waitingPatientsInDC
+int lenOfWQueueO; //Length of waiting Queue OUTSIDE, for waitingPatientsToGoToDC
+
+
+const int D = 90;
+int treatmentTimeIndex[D]={86,51,20,71,29,12,59,52,91,39,61,37,90,58,98,17,64,43,53,88,13,28,27,63,31,65,28,23,76,45,86,51,20,71,29,12,59,52,91,39,86,51,20,71,29,12,59,52,91,39,
+86,51,20,71,29,12,59,52,91,39,61,37,90,58,98,17,64,43,53,88,13,28,27,63,31,65,28,23,76,45,86,51,20,71,29,12,59,52,91,39};
+int delay_index = 0;
+typedef int[0,D] id_d;
+int threshold = 46;
+
+
+int treatmentTime[P];
+
+// To make sure that the caregivers going to DC to pick up patients aren't more than the patients waiting there
+// If we have only 1 patient waiting in DC, only caregiver should be sen and others cannot go to DC now
+int caregiver_at_DC = 0;
+
+broadcast chan take_p[P], release_p[P], return_p[P], wait[P];  
+//chan take_c[C], release_c[C], on_Pt_status[C];
+
+//takeBack_p[P] corrosponds to return_p[P]; on_Pt_status[C] (on patient's status check)corrosponds to takeBack_p[P]
+//bool isWheelchairBusy[W];
+int isNotAvailable[C]; //to check if caregiver is busy. If both the caregivers are busy, it display as {1,1}.
+// int wheelchairAssignedToCaregiver[C]; // which wheelchair is assigned to caregiver
+// int wheelchairAssignedToPatient[P]; // which wheelchair is assigned to patient
+int patientAssignedToCaregiver[C]; // which patient is assigned to caregiver
+</declaration>
+	<template>
+		<name x="5" y="5">Patient</name>
+		<parameter> const id_p id</parameter>
+		<declaration>// Place local declarations here.
+
+clock x;
+
+void setTreatmentTime(){
+    
+   // 1. treatment time is mapped with patient IDs. Everytime P1 selects first treatment time, P2 selects second and so on, irrespective of their arrival order.
+      //  treatmentTime[id]= treatmentTimeIndex[id];
+
+    // 2. treatment Time is picked sequentially from the array. Suppose P3 comes first, he selects 86. Then P1 comes, he selects 51.
+         treatmentTime[id]= treatmentTimeIndex[delay_index++ % D];
+
+      //uncomment following for choosing treatment time based on patient arrival order.
+      // treatmentTime[id]=treatmentTimeIndex[delay_index];
+       //delay_index++;
+    }
+      
+// random treatment time selection
+
+//void setTreatmentTime(id_d e){
+ //      treatmentTime[id]=treatmentTimeIndex[e];
+ //       }
+
+void reset(){
+    assignedPatients[id]=0;
+    isSafe[id]=0;
+    treatmentTime[id]=0;
+    //wheelchairAssignedToPatient[id]=0;
+
+}
+void enqueue_wait_out(id_p e){
+    waitingPatientsToGoToDC[lenOfWQueueO++]=e;
+}
+
+void dequeue_wait_out(){
+    int i=0;
+    lenOfWQueueO-=1; 
+    while(waitingPatientsToGoToDC[i]!=id) i++; 
+    while(i&lt;lenOfWQueueO){
+         waitingPatientsToGoToDC[i]= waitingPatientsToGoToDC[i+1];
+         i++;
+    }
+     waitingPatientsToGoToDC[i]=0;
+}
+
+void enqueue_wait_in(id_p e){
+    int i=0;
+    waitingPatientsInDC[lenOfWQueueI++]=e;
+    //wheelchairAssignedToPatient[id]=0;
+    assignedPatients[id]=0;
+    while(i&lt;C){
+        if(patientAssignedToCaregiver[i]==id){
+            patientAssignedToCaregiver[i]=0;
+            i=C;
+        }
+        i++;
+    }
+    
+}
+
+void dequeue_wait_in(){
+    int i=0;
+    lenOfWQueueI-=1; 
+    while(waitingPatientsInDC[i]!=id) i++;
+    while(i&lt;lenOfWQueueI){
+         waitingPatientsInDC[i]= waitingPatientsInDC[i+1];
+         i++;
+    }
+     waitingPatientsInDC[i]=0;
+}</declaration>
+		<location id="id0" x="-654" y="-476">
+			<name x="-671" y="-510">Start</name>
+			<label kind="exponentialrate" x="-654" y="-467">1</label>
+		</location>
+		<location id="id1" x="-433" y="-476">
+			<name x="-450" y="-459">isTaken</name>
+			<label kind="exponentialrate" x="-442" y="-459">1</label>
+		</location>
+		<location id="id2" x="-314" y="-476">
+			<name x="-289" y="-484">ReachedDC</name>
+		</location>
+		<location id="id3" x="-314" y="-348">
+			<name x="-340" y="-331">Wait_inDC</name>
+		</location>
+		<location id="id4" x="-552" y="-476">
+			<name x="-586" y="-467">ReqService</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-527" y="-501">take_p[id]?</label>
+			<label kind="assignment" x="-552" y="-535">setTreatmentTime(), 
+dequeue_wait_out()</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="-697" y="-527">enqueue_wait_out(id)</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-595" y="-331">patient_clocks[id] &gt;treatmentTime[id]</label>
+			<label kind="synchronisation" x="-552" y="-348">return_p[id]?</label>
+			<label kind="assignment" x="-654" y="-314">reset(), dequeue_wait_in(), caregiver_at_DC--</label>
+			<nail x="-654" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-340" y="-442">treatmentTime[id]&gt;=threshold</label>
+			<label kind="synchronisation" x="-306" y="-425">wait[id]?</label>
+			<label kind="assignment" x="-365" y="-408">enqueue_wait_in(id)</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-705" y="-374">(treatmentTime[id]&lt;threshold) &amp;&amp; (patient_clocks[id]&gt;treatmentTime[id])</label>
+			<label kind="synchronisation" x="-544" y="-408">return_p[id]?</label>
+			<label kind="assignment" x="-518" y="-391">reset()</label>
+			<nail x="-493" y="-399"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-416" y="-501">release_p[id]!</label>
+			<label kind="assignment" x="-416" y="-535">isSafe[id]=1, 
+patient_clocks[id] = 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Caregiver</name>
+		<parameter>const id_c id</parameter>
+		<declaration>// Place local declarations here.
+clock x;
+bool leave;
+bool prevPatients;
+id_p currPatient;
+int delaytime;
+
+void assignPatient(){ //here, the caregiver will get to know which patient is assigned to him.
+    int i=0;  
+   // int count = 0;
+    currPatient = waitingPatientsToGoToDC[0];   
+    /* for(i=0;i&lt;P;i++){
+        if(isSafe[i]==1) count++;  // this function was written to check if all patients have crossed.                                           
+    }
+  if(lenOfWQueueI&gt;0&amp;&amp;waitingPatientsInDC[0]!=currPatient) prevPatients=true;
+    if(count==P) allCrossed = true;
+    count=0; */
+}
+
+void collectWaitingPatient(){
+    int i=0;
+    while(i&lt;P){
+            if(assignedPatients[waitingPatientsInDC[i]]!=1){  // checking if that patient is not assigned to any caregiver already.
+                patientAssignedToCaregiver[id]= waitingPatientsInDC[i];
+                i=P;
+            } 
+            i++;
+    }
+    currPatient=patientAssignedToCaregiver[id];
+    assignedPatients[currPatient]=1;       
+    //wheelchairAssignedToPatient[currPatient]=wheelchairAssignedToCaregiver[id];
+    delaytime=treatmentTime[currPatient];
+    
+}
+void checkTreatmentTime(){
+    delaytime=treatmentTime[currPatient];
+    if(delaytime&gt;=threshold) leave=true;   //leave without Patient
+    else leave=false;      
+}
+
+void takeBackPatient(){
+    int i=0;
+    if(lenOfWQueueI&gt;0&amp;&amp;waitingPatientsInDC[0]!=currPatient) prevPatients=true;  
+    if(prevPatients==true){
+        while(i&lt;P){
+            if(assignedPatients[waitingPatientsInDC[i]]!=1){  // checking if that patient is not assigned to any caregiver already.
+                patientAssignedToCaregiver[id]= waitingPatientsInDC[i];
+                i=P;
+            } 
+            i++;
+        }
+        currPatient=patientAssignedToCaregiver[id];
+        assignedPatients[currPatient]=1;       
+        //wheelchairAssignedToPatient[currPatient]=wheelchairAssignedToCaregiver[id];
+        delaytime=treatmentTime[currPatient];
+        caregiver_at_DC++;
+    } 
+    else currPatient=0; 
+}
+
+void reset(){
+    //int w=wheelchairAssignedToCaregiver[id];
+    isNotAvailable[id]=0;
+    //isWheelchairBusy[w]=false;
+    patientAssignedToCaregiver[id]=0;
+    //wheelchairAssignedToCaregiver[id]=0;
+    delaytime=0;
+    currPatient=0;
+    prevPatients=0;
+}
+</declaration>
+		<location id="id5" x="-18632" y="-969">
+			<name x="-18666" y="-1003">Available</name>
+			<label kind="exponentialrate" x="-18649" y="-943">1</label>
+		</location>
+		<location id="id6" x="-18470" y="-969">
+			<name x="-18496" y="-1003">Assign</name>
+		</location>
+		<location id="id7" x="-18317" y="-969">
+			<name x="-18360" y="-1003">ReleasePatient</name>
+			<label kind="exponentialrate" x="-18309" y="-1003">1</label>
+		</location>
+		<location id="id8" x="-18632" y="-756">
+			<name x="-18674" y="-748">TakePatientBack</name>
+			<label kind="exponentialrate" x="-18649" y="-748">1</label>
+		</location>
+		<location id="id9" x="-18810" y="-867">
+			<name x="-18861" y="-858">GoToCollectPatient</name>
+			<label kind="exponentialrate" x="-18810" y="-858">1</label>
+		</location>
+		<location id="id10" x="-18317" y="-756">
+			<name x="-18326" y="-739">Wait</name>
+			<label kind="exponentialrate" x="-18326" y="-739">1</label>
+			<label kind="comments" x="-18827" y="-714">1. When Patient's waiting time is more than threshold. (Leave Without the current Patient)
+2. Leave with the previously dropped patient.
+3. When Patient's waiting time is less than threshold. (Leave with Current Patient)</label>
+		</location>
+		<location id="id11" x="-18470" y="-858">
+			<name x="-18470" y="-892">CheckPrevPatient</name>
+			<label kind="exponentialrate" x="-18462" y="-858">1</label>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-18623" y="-884">lenOfWQueueI==0
+&amp;&amp;isSafe[currPatient]==0</label>
+			<label kind="assignment" x="-18615" y="-850">reset()</label>
+			<nail x="-18589" y="-824"/>
+			<nail x="-18589" y="-909"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-18725" y="-1054">(isNotAvailable[id]==0) &amp;&amp; lenOfWQueueO&gt;0</label>
+			<label kind="synchronisation" x="-18691" y="-1037">take_p[waitingPatientsToGoToDC[0]]!</label>
+			<label kind="assignment" x="-18699" y="-1020">isNotAvailable[id]=1, assignPatient()</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-18513" y="-756">leave==false</label>
+			<label kind="comments" x="-18360" y="-756">3</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-18538" y="-926">prevPatients==false</label>
+			<label kind="assignment" x="-18521" y="-909">reset()</label>
+			<label kind="comments" x="-18496" y="-892">1</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-18606" y="-799">prevPatients == true</label>
+			<label kind="comments" x="-18496" y="-841">2</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-18454" y="-824">leave==true</label>
+			<label kind="synchronisation" x="-18462" y="-841">wait[currPatient]!</label>
+			<label kind="assignment" x="-18428" y="-807">takeBackPatient()</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id10"/>
+			<label kind="assignment" x="-18394" y="-867">checkTreatmentTime()</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="assignment" x="-18819" y="-790">collectWaitingPatient()</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-18870" y="-977">lenOfWQueueO==0 &amp;&amp;
+lenOfWQueueI&gt;0 &amp;&amp; 
+caregiver_at_DC &lt; lenOfWQueueI</label>
+			<label kind="assignment" x="-18870" y="-918">isNotAvailable[id]=1,
+caregiver_at_DC++</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-18725" y="-833">patient_clocks[currPatient] 
+&gt;treatmentTime[currPatient]</label>
+			<label kind="synchronisation" x="-18734" y="-909">return_p[currPatient]!</label>
+			<label kind="assignment" x="-18674" y="-926">reset()</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-18462" y="-969">release_p[currPatient]?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system Patient, Caregiver;
+
+/*gantt {
+
+Patient (i:id_p):
+
+    Patient(i).Start -&gt; 0, // red
+    Patient(i).isTaken -&gt; 9,   //turquiose
+    Patient(i).Reached_Safe -&gt; 1; // green
+
+
+Caregiver (i:id_c):
+    Caregiver(i).Available -&gt; 8, // red
+    Caregiver(i).Take_wheelchair -&gt; 14,   //orange shade
+    Caregiver(i).Busy -&gt; 12, // pink
+    Caregiver(i).Wait -&gt; 2, //  blue
+    Caregiver(i).TakeBack -&gt; 7;
+
+W:
+     Wheelchair.Free -&gt; 4,   //pink
+     Wheelchair.PatientAssigned -&gt; 27,//shade of blue
+     Wheelchair.CaregiverAssigned -&gt; 28, //dark blue
+     Wheelchair.PatientReleased -&gt; 5, // Orange
+     Wheelchair.CaregiverReleased -&gt; 6, //yellow
+     Wheelchair.CaregiverReturns -&gt; 3; //shade of pink
+ 
+// C(i:int[0,64]): true -&gt; i; // color palette
+// 9: turquiose
+}*/
+       
+    </system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment/>
+		</query>
+		<query>
+			<formula>E[&lt;=100; 2000](max : lenOfWQueueO)</formula>
+			<comment/>
+		</query>
+		<query>
+			<formula>E[&lt;=100; 2000](max : lenOfWQueueI)</formula>
+			<comment/>
+		</query>
+		<query>
+			<formula>E[&lt;=100; 2000](max: patient_clocks[2])</formula>
+			<comment>Compute an expected maximum value of Round trip time for a patient
+Expect a mean estimate based on 2000 samples</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=100](&lt;&gt; Caregiver(0).GoToCollectPatient)</formula>
+			<comment>Probability that caregiver goes to state GoToCollectPatient</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=100](&lt;&gt; Patient(0).Wait_inDC)</formula>
+			<comment>Probability that Patient goes to state Wait_inDC</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=200]{treatmentTime[0], treatmentTime[1], treatmentTime[2], treatmentTime[3]}</formula>
+			<comment>patientDelay represents delay time for patient</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=200]{patient_clocks[0], patient_clocks[1], patient_clocks[2], patient_clocks[3]}</formula>
+			<comment>patient_clocks represents time for a round trip: queuing to go to DC, coming back and again queuing to go to DC</comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=200]{lenOfWQueueI, lenOfWQueueO}</formula>
+			<comment/>
+		</query>
+		<query>
+			<formula>A[] (Patient(0).Wait_inDC || Patient(1).Wait_inDC || Patient(2).Wait_inDC || Patient(3).Wait_inDC) imply forall (i : id_p) patient_clocks[i]&gt;=threshold</formula>
+			<comment>Testing.</comment>
+		</query>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+		<query>
+			<formula>A[] forall(i : id_c)  forall (j : id_c) Caregiver(i).currPatient != Caregiver(j).currPatient imply i!=j</formula>
+			<comment>(correct modified query)No two caregivers have the same patient</comment>
+		</query>
+		<query>
+			<formula/>
+			<comment/>
+		</query>
+		<query>
+			<formula>A&lt;&gt; forall (i : id_c)Caregiver(i).currPatient != 0 imply forall(j : id_c) j!=i &amp;&amp; Caregiver(j).currPatient != Caregiver(i).currPatient</formula>
+			<comment>No two caregivers have the same patient</comment>
+		</query>
+		<query>
+			<formula>A[] forall (i : id_p) (treatmentTime[i]&gt;=5 &amp;&amp; treatmentTime[i]&lt;=100) || (treatmentTime[i] == 0)</formula>
+			<comment>Checking range of delay between 5 and 25. Adding initial delay as 0 </comment>
+		</query>
+		<query>
+			<formula>A[] forall (i : id_p) waitingPatientsInDC[i]!= 0 imply forall(j : id_p) waitingPatientsInDC[i] != waitingPatientsToGoToDC[j]</formula>
+			<comment>Checking if patients in DC are not in waiting to go to DC</comment>
+		</query>
+		<query>
+			<formula>forall (i : id_p)Patient(i).Wait_inDC --&gt; forall (i : id_p)Patient(i).Start</formula>
+			<comment>For all the patients, if a patient is waiting, he will eventually go back to start state. 
+The query verify that a patient cannot remain in Wait state forever.</comment>
+		</query>
+		<query>
+			<formula>E[] (Caregiver(0).ReleasePatient || Caregiver(1).ReleasePatient) imply (Patient(0).isTaken || Patient(1).isTaken || Patient(2).isTaken || Patient(3).isTaken)</formula>
+			<comment>If any of the caregiver is busy, which means one of patient is taken.  </comment>
+		</query>
+		<query>
+			<formula>A&lt;&gt;forall (i : id_c) forall (j : id_c) 
+Caregiver(i).Wait &amp;&amp; Caregiver(j).Wait imply i==j</formula>
+			<comment/>
+		</query>
+		<query>
+			<formula>E&lt;&gt; forall (i : id_c) (Caregiver(i).prevPatients == true) imply (lenOfWQueueI&gt;0 &amp;&amp; Caregiver(i).delaytime &gt; threshold)</formula>
+			<comment>Checking if patient exists in Queuex &gt;patientDelay[id]</comment>
+		</query>
+		<query>
+			<formula>A[] caregiver_at_DC &gt;= 0 &amp;&amp; caregiver_at_DC &lt;= C &amp;&amp; caregiver_at_DC &lt;= lenOfWQueueI</formula>
+			<comment/>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Caregiver(0).GoToCollectPatient || Caregiver(1).GoToCollectPatient</formula>
+			<comment>(Always eventually), if a patient is waiting, will eventually always return.</comment>
+		</query>
+		<query>
+			<formula>E[] (lenOfWQueueO == 0 &amp;&amp; lenOfWQueueI&gt;0 &amp;&amp; Caregiver(0).Available) imply (Caregiver(0).GoToCollectPatient)</formula>
+			<comment>If there is no new patients to pick up, and if caregiver is available, 
+then the caregiver should return to pick up the waiting patients.</comment>
+		</query>
+	</queries>
+</nta>
