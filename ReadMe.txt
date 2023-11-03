@@ -4,7 +4,7 @@ Java (Util, IO, Random, XML)
 UPPAAL-Java Wrapper API
 ******************************
 
-This folder contains: UPPAAL xml files for our resource allocation model. The file name: PCR_X1.xml is the file that shows our extended model which combines Patient-Caregiver-Medical Instrument+Wheelchair allocation. The file: PC_Sim.xml is for the base model. The simulation instruction for running the file is given below. The same instructions should be followed to run the statistical analysis (for executing verification queries in UPPAAL) for the extended model. There are other UPPAAL files (Patient-Caregiver-Resources.xml) that show the model without the wheelchair component. These different model files represent how the extended model is developed gradually by adding components to the existing base model.
+This folder contains: UPPAAL xml files for our resource allocation model. The file name: PCRW.xml is the file that shows our extended model which combines Patient-Caregiver-Medical Instrument+Wheelchair allocation. The file: PC_Sim.xml is for the base model. The simulation instruction for running the file is given below. The same instructions should be followed to run the statistical analysis (for executing verification queries in UPPAAL) for the extended model. There are other UPPAAL files (Patient-Caregiver-Resources.xml) that show the model without the wheelchair component. These different model files represent how the extended model is developed gradually by adding components to the existing base model.
 
 The three Excel files are the result of our following simulation, performed on the base model. The other image files show various plots, results and snapshots of the model. 
 
